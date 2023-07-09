@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+<!-- <!DOCTYPE html>
 <html>
 <head>
   <title>Adafruit IO Feed Display</title>
@@ -21,10 +22,10 @@
     $(document).ready(function() {
       var aioUsername = 'pontiac4545';
       var aioKey = 'aio_SDjc96ucfcPofNJ4jcmXFGNFNQWd';
-      var feedNames = ['Temperature_BME', 'Humidity_BME', 'Pressure_BME', 'Altitude_BME'];
+      var feedNames = ['temperature-bme', 'humidity-bme', 'pressure-bme', 'altitude-bme'];
 
       function fetchFeedData(feedName, containerId) {
-        var url = 'https://io.adafruit.com/api/v2/' + aioUsername + '/feeds/' + feedName + '/data/last';
+        var url = 'https://io.adafruit.com/api/v2/' + aioUsername + '/feeds/' + feedName ;
 
         $.ajax({
           url: url,
@@ -42,10 +43,16 @@
         });
       }
 
-      if (!aioUsername || !aioKey) {
-        console.error('Adafruit IO username or Active Key not provided');
-        $('body').html('Error: Adafruit IO credentials not provided');
-      } else {
+      function validateCredentials() {
+        if (!aioUsername || !aioKey) {
+          console.error('Adafruit IO username or Active Key not provided');
+          $('body').html('Error: Adafruit IO credentials not provided');
+          return false;
+        }
+        return true;
+      }
+
+      if (validateCredentials()) {
         for (var i = 0; i < feedNames.length; i++) {
           var feedContainerId = 'feedContainer' + (i + 1);
           var feedName = feedNames[i];
@@ -60,4 +67,57 @@
     });
   </script>
 </body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Adafruit IO Feed Display</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <style>
+    .feed {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Adafruit IO Feed Display</h1>
+
+  <div id="feedContainer1" class="feed"></div>
+  <div id="feedContainer2" class="feed"></div>
+  <div id="feedContainer3" class="feed"></div>
+  <div id="feedContainer4" class="feed"></div>
+
+  <script>
+    $(document).ready(function() {
+      var feedUrls = [
+        'https://io.adafruit.com/api/v2/pontiac4545/feeds/temperature-bme',
+        'https://io.adafruit.com/api/v2/pontiac4545/feeds/humidity-bme',
+        'https://io.adafruit.com/api/v2/pontiac4545/feeds/pressure-bme',
+        'https://io.adafruit.com/api/v2/pontiac4545/feeds/altitude-bme'
+      ];
+
+      function fetchFeedData(feedUrl, containerId) {
+        $.ajax({
+          url: feedUrl,
+          type: 'GET',
+          success: function(response) {
+            var lastValue = response.last_value;
+            $('#' + containerId).html(lastValue);
+          },
+          error: function(xhr, status, error) {
+            console.error('Error fetching feed data for ' + containerId + ': ' + error);
+            $('#' + containerId).html('Error: Unable to fetch feed data');
+          }
+        });
+      }
+
+      for (var i = 0; i < feedUrls.length; i++) {
+        var feedContainerId = 'feedContainer' + (i + 1);
+        fetchFeedData(feedUrls[i], feedContainerId);
+      }
+    });
+  </script>
+</body>
 </html>
+
